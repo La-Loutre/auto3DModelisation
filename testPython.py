@@ -11,16 +11,42 @@ class Application:
         self.frame.pack()
         self.baseMenu=Menu(self.master)
 
+        ##TMP
+        self.point0=[0,0]
+        self.point1=[0,0]
+        ##
         ## Create img 0 & 1 canvas :
         self.canvasImg0 = Canvas(self.frame,width=300,height=100)
         self.canvasImg1 = Canvas(self.frame,width=300,height=100)
         self.canvasImg0.pack()
         self.canvasImg1.pack()
+        ##
+
+        ## Bind mouse with canvas :
+        self.canvasImg0.bind("<Button-1>",self.addPoint0)
+        self.canvasImg1.bind("<Button-1>",self.addPoint1)
+        
+        ##
 
         ### Create all submenus
         self.createFileMenu()
         ###
         self.master.config(menu=self.baseMenu)
+        
+    def addPoint1(self,event):
+        canvasTmp=self.canvasImg1
+        point=self.point1
+        point[0]=int(event.x)
+        point[1]=int(event.y)
+        print(self.point0,self.point1)
+        
+    def addPoint0(self,event):
+        canvasTmp=self.canvasImg0
+        point=self.point0
+        
+        point[0]=int(event.x)
+        point[1]=int(event.y)
+        print(self.point0,self.point1)
         
     
     def createFileMenu(self):
@@ -31,7 +57,7 @@ class Application:
 
     def getFileName(self):
         print("Load picture")
-        ftypes= [('Pictures files','*.png'),('All files','*')]
+        ftypes= [('All files','*'),('Pictures files','*.png')]
         dlg = tkFileDialog.Open(self.frame,filetypes = ftypes)
         fileName=dlg.show()
         return fileName
