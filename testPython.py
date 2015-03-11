@@ -7,10 +7,10 @@ import math
 MAXWIDTH=1000
 
 camera0Angle=135
-camera0AngleMort=180-camera0Angle
+camera0BlindSpot=180-camera0Angle
 
 camera1Angle=135
-camera1AngleMort=180-camera1Angle
+camera1BlindSpot=180-camera1Angle
 
 widthCamera=0.2
 
@@ -117,9 +117,9 @@ class Application:
 
 def distanceX(alpha,beta,width,dY):
     print(alpha,beta,width)
-    if(alpha*beta >0 ):
-        return (dY*float(math.tan(alpha))+dY*float(math.tan(beta)))/float(2)
-    return (-dY*float(alpha)+dY*float(math.tan(beta))+width)/float(2)
+    #if(alpha*beta >0 ):
+    return (dY*float(math.tan(alpha))+dY*float(math.tan(beta)))/float(2)
+   # return (-dY*float(alpha)+dY*float(math.tan(beta))+width)/float(2)
     
 def distanceY(alpha,beta,width):
     print(alpha,beta,width)
@@ -129,7 +129,7 @@ def distanceY(alpha,beta,width):
     return abs(float(width)/float((math.tan(alpha)+math.tan(beta))))
     
 def angle(widthImg,posXPoint,cameraAngle):
-#    r=90-(camera0AngleMort+(width-posYPoint)*camera0Angle/widthImg)
+#    r=90-(camera0BlindSpot+(width-posYPoint)*camera0Angle/widthImg)
 
     return (posXPoint*cameraAngle/float(widthImg)-cameraAngle/float(2)) * math.pi/float(180)
         
