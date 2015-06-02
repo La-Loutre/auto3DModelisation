@@ -32,10 +32,15 @@ def cascadeClassifierDetection(img,xml):
     cascadeClass = cv2.CascadeClassifier(xml)
     img_cv = PILToOpenCV(img)
     img_cv_gray = cv2.cvtColor(img_cv,cv2.COLOR_BGR2GRAY)
-    detection = cascadeClass.detectMultiScale(img_cv_gray,1.3,5)
+    img_cv_gray = cv2.equalizeHist(img_cv_gray)
+    detection = cascadeClass.detectMultiScale(img_cv_gray,1.1,2,0)
+    detectionMax = detection[0]
     for (x,y,w,h) in detection:
-        print "detection worked"
-        cv2.rectangle(img_cv,(x,y),(x+w,y+h),(255,0,0),2)
+        if  w*h > detectionMax[2]*detectionMax[3] :
+            detectionMax=(x,y,w,h)
+    
+    (x,y,w,h) = detectionMax
+    cv2.rectangle(img_cv,(x,y),(x+w,y+h),(255,0,0),2)
         #roi_color = img_cv[y:y+h, x:x+w]
 
     return openCVToPIL(img_cv)
