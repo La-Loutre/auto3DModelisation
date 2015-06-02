@@ -1,11 +1,13 @@
 from Tkinter import *
+from processing import *
 from PIL import Image,ImageTk
 import tkFileDialog
 import Tkinter
 import Image
 import math
-MAXWIDTH=1000
-
+MAXWIDTH=400
+DEBUG = True
+GOLF_PATH="/home/louis/projetVoiture/voituresTraining/golf/"
 camera0Angle=135
 camera0BlindSpot=180-camera0Angle
 
@@ -43,6 +45,12 @@ class Application:
         self.createFileMenu()
         ###
         self.master.config(menu=self.baseMenu)
+
+        ##DEBUG part
+
+        if DEBUG :
+            self.refreshPicture(Image.open(GOLF_PATH+"DSC_1729.JPG"),0)
+            self.refreshPicture(Image.open(GOLF_PATH+"DSC_1731.JPG"),1)
         
     def addPoint1(self,event):
         canvasTmp=self.canvasImg1
@@ -54,7 +62,7 @@ class Application:
         dY=distanceY(angle(self.img0.size[0],self.point0[0],camera0Angle),angle(self.img1.size[0],self.point1[0],camera1Angle),widthCamera)
         print(dY)
         dX=distanceX(angle(self.img0.size[0],self.point0[0],camera0Angle),angle(self.img1.size[0],self.point1[0],camera1Angle),widthCamera,dY)
-        print dX
+        print(dX)
 
 
         
@@ -87,52 +95,37 @@ class Application:
     def refreshPicture(self,img,pictureNumber=0):
         (x,y)=img.size
         if(pictureNumber==0):
-            self.img0=img
+            self.img0=cascadeClassifierDetection(img,"cas1.xml")
             ratio = MAXWIDTH/float(x); 
             self.ratio0=ratio
             height=int(float(y)*float(ratio))
-            self.img0Thumbnail= img.resize((MAXWIDTH,height), Image.ANTIALIAS)
+            self.img0Thumbnail= self.img0.resize((MAXWIDTH,height), Image.ANTIALIAS)
             canvasTmp=self.canvasImg0
             sideTmp=LEFT
             self.photo0=ImageTk.PhotoImage(self.img0Thumbnail)
             photoTmp=self.photo0
             (x1,y1)=self.img0Thumbnail.size
+            
         else:
-            self.img1=img
+            self.img1=cascadeClassifierDetection(img,"cas1.xml")
             ratio = MAXWIDTH/float(x); 
             self.ratio1=ratio
             height=int(float(y)*float(ratio))
-            self.img1Thumbnail= img.resize((MAXWIDTH, height), Image.ANTIALIAS)
+            self.img1Thumbnail= self.img1.resize((MAXWIDTH, height), Image.ANTIALIAS)
             canvasTmp=self.canvasImg1
             sideTmp=RIGHT
             self.photo1=ImageTk.PhotoImage(self.img1Thumbnail)
             photoTmp=self.photo1
             (x1,y1)=self.img1Thumbnail.size
-            
+            #keypoints(self.img0,self.img1)
+
     
         canvasTmp.create_image((x1/2,y1/2),image=photoTmp)
         canvasTmp.config(width=x1,height=y1,scrollregion=(0,0,x1,y1))
         canvasTmp.pack(side=sideTmp)
         self.frame.pack()
 
-def distanceX(alpha,beta,width,dY):
-    print(alpha,beta,width)
-    #if(alpha*beta >0 ):
-    return (dY*float(math.tan(alpha))+dY*float(math.tan(beta)))/float(2)
-   # return (-dY*float(alpha)+dY*float(math.tan(beta))+width)/float(2)
-    
-def distanceY(alpha,beta,width):
-    print(alpha,beta,width)
-    print(math.tan(alpha),math.tan(beta))
-    if(alpha*beta >0 ):
-        return abs(float(width)/float((math.tan(alpha)-math.tan(beta))))
-    return abs(float(width)/float((math.tan(alpha)+math.tan(beta))))
-    
-def angle(widthImg,posXPoint,cameraAngle):
-#    r=90-(camera0BlindSpot+(width-posYPoint)*camera0Angle/widthImg)
 
-    return (posXPoint*cameraAngle/float(widthImg)-cameraAngle/float(2)) * math.pi/float(180)
-        
 root = Tk()
 application = Application(root)
 
