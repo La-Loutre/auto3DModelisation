@@ -34,7 +34,12 @@ class Application:
         self.canvasImg0.pack()
         self.canvasImg1.pack()
         ##
-
+        ## Create detection 0 & 1 canvas :
+        self.canvasD1 = Canvas(self.frame,width=300,height=100)
+        self.canvasD2 = Canvas(self.frame,width=300,height=100)
+        self.canvasD1.pack()
+        self.canvasD2.pack()
+        ##
         ## Bind mouse with canvas :
         self.canvasImg0.bind("<Button-1>",self.addPoint0)
         self.canvasImg1.bind("<Button-1>",self.addPoint1)
@@ -50,7 +55,7 @@ class Application:
 
         if DEBUG :
             self.refreshPicture(Image.open(GOLF_PATH+"DSC_1729.JPG"),0)
-            self.refreshPicture(Image.open(GOLF_PATH+"DSC_1731.JPG"),1)
+            self.refreshPicture(Image.open(GOLF_PATH+"DSC_1730.JPG"),1)
         
     def addPoint1(self,event):
         canvasTmp=self.canvasImg1
@@ -91,11 +96,12 @@ class Application:
     
     def loadPicture(self,pictureNumber=0):
         self.refreshPicture(Image.open(self.getFileName()),pictureNumber)
-        
+
+    
     def refreshPicture(self,img,pictureNumber=0):
         (x,y)=img.size
         if(pictureNumber==0):
-            self.img0=cascadeClassifierDetection(img,"cas1.xml")
+            self.img0,self.img0surf=cascadeClassifierDetection(img,"cas1.xml")
             ratio = MAXWIDTH/float(x); 
             self.ratio0=ratio
             height=int(float(y)*float(ratio))
@@ -107,7 +113,7 @@ class Application:
             (x1,y1)=self.img0Thumbnail.size
             
         else:
-            self.img1=cascadeClassifierDetection(img,"cas1.xml")
+            self.img1,self.img1surf=cascadeClassifierDetection(img,"cas1.xml")
             ratio = MAXWIDTH/float(x); 
             self.ratio1=ratio
             height=int(float(y)*float(ratio))
@@ -117,7 +123,33 @@ class Application:
             self.photo1=ImageTk.PhotoImage(self.img1Thumbnail)
             photoTmp=self.photo1
             (x1,y1)=self.img1Thumbnail.size
-            #keypoints(self.img0,self.img1)
+
+            imgDetection1,imgDetection2 = keypoints(self.img0surf,self.img1surf)
+            
+            ##Get size
+            self.imgDetection1 = imgDetection1
+            (xD1,yD1) = self.imgDetection1.size
+            self.imgDetection2 = imgDetection2
+            (xD2,yD2) = self.imgDetection2.size
+            
+            ratioD1 = MAXWIDTH/float(xD1)
+            ratioD2 = MAXWIDTH/float(xD2)
+            heightD1=int(float(yD1)*float(ratioD1))
+            heightD2=int(float(yD2)*float(ratioD2))
+
+            
+            self.imgDetection1Thumbnail = self.imgDetection1.resize((MAXWIDTH,heightD1),Image.ANTIALIAS)
+            self.imgDetection2Thumbnail = self.imgDetection2.resize((MAXWIDTH,heightD2),Image.ANTIALIAS)
+            self.photoD1 = ImageTk.PhotoImage(self.imgDetection1Thumbnail)
+            self.photoD2 = ImageTk.PhotoImage(self.imgDetection2Thumbnail)
+            (xD1T,yD1T)=self.imgDetection1Thumbnail.size
+            (xD2T,yD2T)=self.imgDetection2Thumbnail.size
+            self.canvasD1.create_image((xD1T/2,yD1T/2),image=self.photoD1)
+            self.canvasD1.config(width=xD1T,height=yD1T,scrollregion=(0,0,xD1T,yD1T))
+            self.canvasD2.create_image((xD2T/2,yD2T/2),image=self.photoD2)
+            self.canvasD2.config(width=xD2T,height=yD2T,scrollregion=(0,0,xD2T,yD2T))
+            self.canvasD1.pack(side=BOTTOM)
+            self.canvasD2.pack(side=BOTTOM)
 
     
         canvasTmp.create_image((x1/2,y1/2),image=photoTmp)

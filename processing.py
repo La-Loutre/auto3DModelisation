@@ -31,6 +31,8 @@ def distanceY(alpha,beta,width):
 def cascadeClassifierDetection(img,xml):
     cascadeClass = cv2.CascadeClassifier(xml)
     img_cv = PILToOpenCV(img)
+    height,width = img_cv.shape[:2]
+    
     img_cv_gray = cv2.cvtColor(img_cv,cv2.COLOR_BGR2GRAY)
     img_cv_gray = cv2.equalizeHist(img_cv_gray)
     detection = cascadeClass.detectMultiScale(img_cv_gray,1.1,2,0)
@@ -38,15 +40,16 @@ def cascadeClassifierDetection(img,xml):
     for (x,y,w,h) in detection:
         if  w*h > detectionMax[2]*detectionMax[3] :
             detectionMax=(x,y,w,h)
-    
+
     (x,y,w,h) = detectionMax
+    save_img_cv = img_cv[y:y+h,x:x+w].copy()
     cv2.rectangle(img_cv,(x,y),(x+w,y+h),(255,0,0),2)
         #roi_color = img_cv[y:y+h, x:x+w]
 
-    return openCVToPIL(img_cv)
+    return openCVToPIL(img_cv),save_img_cv
 def keypoints(img1,img2):
-    img1_cv = PILToOpenCV(img1)
-    img2_cv = PILToOpenCV(img2)
+    img1_cv = img1#PILToOpenCV(img1)
+    img2_cv = img2#PILToOpenCV(img2)
     
     surf=cv2.SURF(400)
     kp, des = surf.detectAndCompute(img1_cv,None)
@@ -66,8 +69,8 @@ def keypoints(img1,img2):
 
 
     # Draw first 10 matches.
-    img3 = drawMatches(img1_cv,kp,img2_cv,kp1,matches[:10])
-
+    img1result,img2result = drawMatches(img1_cv,kp,img2_cv,kp1,matches[:5])
+    return openCVToPIL(img1result),openCVToPIL(img2result)
 
     
 def drawMatches(img1, kp1, img2, kp2, matches):
@@ -117,17 +120,14 @@ def drawMatches(img1, kp1, img2, kp2, matches):
         # radius 4
         # colour blue
         # thickness = 1
-        cv2.circle(img1, (int(x1),int(y1)), 4, (255, 0, 0), 1)   
-        cv2.circle(img2, (int(x2),int(y2)), 4, (255, 0, 0), 1)
+        cv2.circle(img1, (int(x1),int(y1)), 20, (0, 0, 255), -1)   
+        cv2.circle(img2, (int(x2),int(y2)), 20, (0, 0, 255), -1)
         # Draw a line in between the two points
         # thickness = 1
         # colour blue
         #cv2.line(img1, (int(x1),int(y1)), (int(x2)+cols1,int(y2)), (255, 0,0), 1)
+    return img1,img2
 
-    # Show the image
-    cv2.imshow('Matched Features', img1)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
 
     
 def angle(widthImg,posXPoint,cameraAngle):
